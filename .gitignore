@@ -1,0 +1,4 @@
+target/
+messages.json
+nbproject/private/
+*.class
