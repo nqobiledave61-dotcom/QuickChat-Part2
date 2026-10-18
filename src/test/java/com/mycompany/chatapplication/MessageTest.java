@@ -190,6 +190,20 @@ public void invalidMessageIdCannotBeSent() {
 
     assertEquals(0, message.returnTotalMessages());
 }
+@Test
+public void invalidRecipientCannotReceiveMessage() {
+    Message message = new Message(
+            "1234567890",
+            "08575975889",
+            "Hello Mike",
+            0);
+
+    assertEquals(
+            "Message could not be sent. Please check the message ID, recipient number, and message length.",
+            message.SentMessage(1));
+
+    assertEquals(0, message.returnTotalMessages());
+}
 
 }
 
