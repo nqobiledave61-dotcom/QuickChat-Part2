@@ -1,5 +1,8 @@
-
 package com.mycompany.chatapplication;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -7,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class MessageTest {
 
@@ -134,17 +138,72 @@ public class MessageTest {
         assertEquals(0, message.returnTotalMessages());
     }
 
-    @Test
-    public void storeMessageReturnsSuccess() {
-        Message message = new Message(
-                "0000000000",
-                "+27718693002",
-                "Store this message",
-                0);
+@Test
+public void storeMessageReturnsSuccess(@TempDir Path tempDir)
+        throws IOException {
 
-        assertEquals("Message successfully stored.",
-                message.SentMessage(3));
-        assertEquals(0, message.returnTotalMessages());
-    }
+    Message message = new Message(
+            "0000000000",
+            "+27718693002",
+            "Store this message",
+            0);
+
+    Path testFile = tempDir.resolve("messages.json");
+
+    assertEquals("Message successfully stored.",
+            message.storeMessage(testFile));
+
+    assertTrue(Files.exists(testFile));
+
+    String storedContent = Files.readString(testFile);
+
+    assertTrue(storedContent.contains("Store this message"));
+    assertTrue(storedContent.contains("00:0:STOREMESSAGE"));
+
+    assertEquals(0, message.returnTotalMessages());
+  }
+@Test
+public void invalidMessageActionIsRejected() {
+    Message message = new Message(
+            "1234567890",
+            "+27718693002",
+            "Hello Mike",
+            0);
+
+    assertEquals(
+            "Invalid choice. Please select 1, 2, or 3.",
+            message.SentMessage(4));
+
+    assertEquals(0, message.returnTotalMessages());
+}
+@Test
+public void invalidMessageIdCannotBeSent() {
+    Message message = new Message(
+            "12345",
+            "+27718693002",
+            "Hello Mike",
+            0);
+
+    assertEquals(
+            "Message could not be sent. Please check the message ID, recipient number, and message length.",
+            message.SentMessage(1));
+
+    assertEquals(0, message.returnTotalMessages());
+}
+@Test
+public void invalidRecipientCannotReceiveMessage() {
+    Message message = new Message(
+            "1234567890",
+            "08575975889",
+            "Hello Mike",
+            0);
+
+    assertEquals(
+            "Message could not be sent. Please check the message ID, recipient number, and message length.",
+            message.SentMessage(1));
+
+    assertEquals(0, message.returnTotalMessages());
+}
+
 }
 

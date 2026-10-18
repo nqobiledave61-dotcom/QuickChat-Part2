@@ -155,14 +155,16 @@ public class ChatApplication {
 
                             text = scanner.nextLine();
 
-                            if (text.length() <= 250) {
-                                break;
-                            }
+                        Message lengthCheck = new Message(
+                             recipient, text, messagesEntered);
 
-                            System.out.println(
-                                    "Message exceeds 250 characters by "
-                                    + (text.length() - 250)
-                                    + "; please reduce the size.");
+                        String lengthResult = lengthCheck.checkMessageLength();
+
+                        if (lengthResult.equals("Message ready to send.")) {
+                            break;
+                        }
+
+                        System.out.println(lengthResult);
                         }
 
                         // CREATE MESSAGE

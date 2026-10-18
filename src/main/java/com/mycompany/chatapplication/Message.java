@@ -185,9 +185,13 @@ public class Message {
         return SENT_MESSAGES.size();
     }
 
-    /** Stores this message in a JSON array in messages.json. */
-    public String storeMessage() {
-        Path file = Path.of("messages.json");
+/** Stores this message in the application's JSON file. */
+public String storeMessage() {
+    return storeMessage(Path.of("messages.json"));
+}
+
+/** Stores this message in a specified JSON file. */
+public String storeMessage(Path file) {
 
         String hash = messageHash == null
                 ? createMessageHash() : messageHash;
