@@ -176,6 +176,20 @@ public void invalidMessageActionIsRejected() {
 
     assertEquals(0, message.returnTotalMessages());
 }
+@Test
+public void invalidMessageIdCannotBeSent() {
+    Message message = new Message(
+            "12345",
+            "+27718693002",
+            "Hello Mike",
+            0);
+
+    assertEquals(
+            "Message could not be sent. Please check the message ID, recipient number, and message length.",
+            message.SentMessage(1));
+
+    assertEquals(0, message.returnTotalMessages());
+}
 
 }
 
