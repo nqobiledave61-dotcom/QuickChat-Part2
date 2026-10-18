@@ -162,6 +162,20 @@ public void storeMessageReturnsSuccess(@TempDir Path tempDir)
 
     assertEquals(0, message.returnTotalMessages());
   }
+@Test
+public void invalidMessageActionIsRejected() {
+    Message message = new Message(
+            "1234567890",
+            "+27718693002",
+            "Hello Mike",
+            0);
+
+    assertEquals(
+            "Invalid choice. Please select 1, 2, or 3.",
+            message.SentMessage(4));
+
+    assertEquals(0, message.returnTotalMessages());
+}
 
 }
 
