@@ -23,6 +23,9 @@ public class Message {
             "Cell phone number successfully captured.";
 
     private static final List<Message> SENT_MESSAGES = new ArrayList<>();
+    private static final List<Message> DISREGARDED_MESSAGES = new ArrayList<>();
+    private static final List<Message> STORED_MESSAGES = new ArrayList<>();
+    private static final List<Message> ALL_MESSAGES = new ArrayList<>();
 
     private static Scanner inputScanner = new Scanner(System.in);
 
@@ -141,9 +144,12 @@ public class Message {
 
                 createMessageHash();
                 SENT_MESSAGES.add(this);
+                trackMessage(this);
                 return "Message successfully sent.";
 
             case 2:
+                DISREGARDED_MESSAGES.add(this);
+                trackMessage(this);
                 return "Press 0 to delete the message.";
 
             case 3:
@@ -235,6 +241,8 @@ public String storeMessage(Path file) {
 
             Files.writeString(file, updated + System.lineSeparator(),
                     StandardCharsets.UTF_8);
+            STORED_MESSAGES.add(this);
+            trackMessage(this);
 
             return "Message successfully stored.";
 
@@ -287,6 +295,37 @@ public String storeMessage(Path file) {
     /** Clears sent messages, primarily for unit testing. */
     public static void clearSentMessages() {
         SENT_MESSAGES.clear();
+        DISREGARDED_MESSAGES.clear();
+        STORED_MESSAGES.clear();
+        ALL_MESSAGES.clear();
+    }
+
+    private static void trackMessage(Message message) {
+        ALL_MESSAGES.add(message);
+    }
+
+    public static List<Message> getSentMessages() {
+        return List.copyOf(SENT_MESSAGES);
+    }
+
+    public static List<Message> getDisregardedMessages() {
+        return List.copyOf(DISREGARDED_MESSAGES);
+    }
+
+    public static List<Message> getStoredMessagesThisSession() {
+        return List.copyOf(STORED_MESSAGES);
+    }
+
+    public static List<String> getMessageIds() {
+        return ALL_MESSAGES.stream().map(Message::getMessageID).toList();
+    }
+
+    public static List<String> getMessageHashes() {
+        return ALL_MESSAGES.stream().map(Message::getMessageHash).toList();
+    }
+
+    void setLoadedHash(String hash) {
+        this.messageHash = hash;
     }
 
     public String getMessageID() {

@@ -87,6 +87,8 @@ public class ChatApplication {
         System.out.println("Welcome to QuickChat.");
 
         Message.clearSentMessages();
+        MessageReport report = new MessageReport(
+                java.nio.file.Path.of("messages.json"), firstName + " " + lastName);
 
         int messageLimit = readMessageLimit(scanner);
         int messagesEntered = 0;
@@ -99,6 +101,7 @@ public class ChatApplication {
             System.out.println("1) Send Messages");
             System.out.println("2) Show recently sent messages");
             System.out.println("3) Quit");
+            System.out.println("4) Stored Messages");
             System.out.println("====================================");
 
             System.out.print("Choose an option: ");
@@ -247,10 +250,14 @@ public class ChatApplication {
                     running = false;
                     break;
 
+                case "4":
+                    storedMessagesMenu(scanner, report);
+                    break;
+
                 default:
 
                     System.out.println(
-                            "Invalid option. Please choose 1, 2, or 3.");
+                            "Invalid option. Please choose 1, 2, 3, or 4.");
                     break;
             }
         }
@@ -268,6 +275,56 @@ public class ChatApplication {
         System.out.println(
                 "Thank you for using QuickChat. Goodbye!");
         System.out.println("====================================");
+    }
+
+    /** Part 3 reporting menu. */
+    private static void storedMessagesMenu(Scanner scanner, MessageReport report) {
+        boolean viewing = true;
+        while (viewing) {
+            System.out.println("\n========== STORED MESSAGES ==========");
+            System.out.println("1) Display senders and recipients");
+            System.out.println("2) Display longest stored message");
+            System.out.println("3) Search by message ID");
+            System.out.println("4) Search by recipient");
+            System.out.println("5) Delete stored message by hash");
+            System.out.println("6) Display full message report");
+            System.out.println("7) Back to main menu");
+            System.out.print("Choose an option: ");
+            String choice = scanner.nextLine().trim();
+            try {
+                switch (choice) {
+                    case "1" -> System.out.println(report.storedSendersAndRecipients());
+                    case "2" -> System.out.println(report.longestStoredMessage()
+                            .map(m -> "Longest message: " + m.getMessageText())
+                            .orElse("No stored messages."));
+                    case "3" -> {
+                        System.out.print("Enter message ID: ");
+                        String id = scanner.nextLine().trim();
+                        System.out.println(report.searchById(id)
+                                .map(m -> "Recipient: " + m.getRecipientCell()
+                                        + "\nMessage: " + m.getMessageText())
+                                .orElse("Message ID not found."));
+                    }
+                    case "4" -> {
+                        System.out.print("Enter recipient: ");
+                        String recipient = scanner.nextLine().trim();
+                        java.util.List<Message> matches = report.searchByRecipient(recipient);
+                        if (matches.isEmpty()) System.out.println("No messages found.");
+                        else for (Message m : matches)
+                            System.out.println("Message: " + m.getMessageText());
+                    }
+                    case "5" -> {
+                        System.out.print("Enter message hash: ");
+                        System.out.println(report.deleteByHash(scanner.nextLine().trim()));
+                    }
+                    case "6" -> System.out.println(report.fullReport());
+                    case "7" -> viewing = false;
+                    default -> System.out.println("Invalid option. Please choose 1 to 7.");
+                }
+            } catch (java.io.IOException ex) {
+                System.out.println("Unable to read or update messages.json: " + ex.getMessage());
+            }
+        }
     }
 
     /** Reads the maximum number of messages to enter. */
